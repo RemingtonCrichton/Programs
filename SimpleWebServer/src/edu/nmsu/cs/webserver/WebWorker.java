@@ -18,10 +18,14 @@ package edu.nmsu.cs.webserver;
  * particular format).
  * 
  * @author Jon Cook, Ph.D.
- *
+ * 
+ * edited by Remington Crichton - 2/13/2022
+ * 
  **/
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -32,13 +36,14 @@ import java.util.TimeZone;
 
 public class WebWorker implements Runnable
 {
-
 	private Socket socket;
+	public boolean valid = false; //Public variable representing whether requested file was found. 
+	public String secure = ""; //Public string containing the file path requested. 
 
 	/**
 	 * Constructor: must have a valid open socket
 	 **/
-	public WebWorker(Socket s)
+	public WebWorker( Socket s )
 	{
 		socket = s;
 	}
@@ -48,53 +53,76 @@ public class WebWorker implements Runnable
 	 * destroys the thread. This method assumes that whoever created the worker created it with a
 	 * valid open socket object.
 	 **/
+
+	//Calls methods to properly handle Server request: 
 	public void run()
 	{
-		System.err.println("Handling connection...");
+		System.err.println( "Handling connection..." );
 		try
 		{
-			InputStream is = socket.getInputStream();
-			OutputStream os = socket.getOutputStream();
-			readHTTPRequest(is);
-			writeHTTPHeader(os, "text/html");
-			writeContent(os);
+			InputStream is = socket.getInputStream(); //Pulling in stuff from web browser
+			OutputStream os = socket.getOutputStream(); //Sending back to the browser
+
+			readHTTPRequest( is ); 
+			writeHTTPHeader( os, "text/html" );
+			writeContent( os );
+
 			os.flush();
 			socket.close();
 		}
-		catch (Exception e)
+		catch ( Exception e )
 		{
-			System.err.println("Output error: " + e);
+			System.err.println( "Output error: " + e );
 		}
-		System.err.println("Done handling connection.");
+		System.err.println( "Done handling connection." );
 		return;
 	}
 
 	/**
 	 * Read the HTTP request header.
 	 **/
-	private void readHTTPRequest(InputStream is)
+
+	//Seperates file Path from GET request and checks whether file exists: 
+	private void readHTTPRequest( InputStream is )
 	{
 		String line;
-		BufferedReader r = new BufferedReader(new InputStreamReader(is));
-		while (true)
-		{
-			try
+		String fileRequest = ""; 
+		String splitRequest[] = {}; 
+		
+		BufferedReader r = new BufferedReader( new InputStreamReader(is) );
+
+		while ( true )
+		{ 
+			try 
 			{
-				while (!r.ready())
-					Thread.sleep(1);
+				while ( !r.ready() )
+					Thread.sleep( 1 );
+
 				line = r.readLine();
-				System.err.println("Request line: (" + line + ")");
+				System.err.println( "Request line: (" + line + ")" );
+				
+				//Check to see if server request contains file request: 
+				if( line.contains( "GET" ) && line.contains( ".html" ) ){ 
+					fileRequest = line; 
+					splitRequest = fileRequest.split( "\\s+" ); //Seperate GET request at spaces
+					secure = splitRequest[1]; //index 1 includes file path (index 0 = GET, index 2 = HTTP/1.1)
+
+					secure = secure.substring( 1 ); //Remove initial forward slash and store address in public variable
+
+					File file = new File( secure ); 
+						valid = file.exists(); //Make sure that file can be opened
+				} //end if
+
 				if (line.length() == 0)
 					break;
-			}
+			} //end try
 			catch (Exception e)
 			{
 				System.err.println("Request error: " + e);
 				break;
-			}
-		}
-		return;
-	}
+			} //end catch
+		} //end while
+	} //End Read Request
 
 	/**
 	 * Write the HTTP header lines to the client network connection.
@@ -104,24 +132,33 @@ public class WebWorker implements Runnable
 	 * @param contentType
 	 *          is the string MIME content type (e.g. "text/html")
 	 **/
+
+	//Sends correct error code based on whether file was found: 
 	private void writeHTTPHeader(OutputStream os, String contentType) throws Exception
 	{
 		Date d = new Date();
 		DateFormat df = DateFormat.getDateTimeInstance();
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		os.write("HTTP/1.1 200 OK\n".getBytes());
-		os.write("Date: ".getBytes());
-		os.write((df.format(d)).getBytes());
-		os.write("\n".getBytes());
-		os.write("Server: Jon's very own server\n".getBytes());
+
+		//Send correct error code: 
+		if( valid == true ){ 
+			os.write("HTTP/1.1 200 OK\n".getBytes()); //File Exists
+		} //end if
+		else
+			os.write( "HTTP/1.1 404 NOT FOUND\n".getBytes() ); //File does not Exist 
+
+		os.write( "Date: ".getBytes() );
+		os.write( (df.format(d)).getBytes() );
+		os.write( "\n".getBytes() );
+		os.write( "Server: Jon's very own server\n".getBytes() );
 		// os.write("Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT\n".getBytes());
 		// os.write("Content-Length: 438\n".getBytes());
-		os.write("Connection: close\n".getBytes());
-		os.write("Content-Type: ".getBytes());
-		os.write(contentType.getBytes());
-		os.write("\n\n".getBytes()); // HTTP header ends with 2 newlines
+		os.write( "Connection: close\n".getBytes() );
+		os.write( "Content-Type: ".getBytes() );
+		os.write( contentType.getBytes() ); //For program 2
+		os.write( "\n\n".getBytes() ); // HTTP header ends with 2 newlines
 		return;
-	}
+	} //End Write Header
 
 	/**
 	 * Write the data content to the client network connection. This MUST be done after the HTTP
@@ -130,11 +167,32 @@ public class WebWorker implements Runnable
 	 * @param os
 	 *          is the OutputStream object to write to
 	 **/
-	private void writeContent(OutputStream os) throws Exception
-	{
-		os.write("<html><head></head><body>\n".getBytes());
-		os.write("<h3>My web server works!</h3>\n".getBytes());
-		os.write("</body></html>\n".getBytes());
-	}
 
+	//This method sends the html file as well as identify html tags and change them: 
+	private void writeContent(OutputStream os) throws Exception
+	{ 
+		if( valid == true ){ //If file was found 
+			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
+			Date today = new Date(); 
+
+			BufferedReader fileRead = new BufferedReader( new FileReader( secure ) ); 
+			String fileHold = ""; 
+
+			while( ( fileHold = fileRead.readLine() ) != null ){ 
+				if( fileHold.contains( "<cs371server>" ) ) ; 
+					fileHold = fileHold.replace( "<cs371server>", serverName ); 
+				if( fileHold.contains( "<cs371date>" ) ); 
+					fileHold = fileHold.replace( "<cs371date>", today.toString() );
+					
+				os.write("<html><head></head><body>\n".getBytes());
+				os.write(("<h3>"+ fileHold +"\n</h3>\n").getBytes()); //Print HTML on page. 
+				os.write("</body></html>\n".getBytes());
+			}//end while
+		}//end if
+		else{ //File was not found - Print 404 on page rather than HTML file
+			os.write("<html><head></head><body>\n".getBytes());
+			os.write(("<h3> 404 Not Found \n</h3>\n").getBytes()); 
+			os.write("</body></html>\n".getBytes());
+		} //end else
+	} //end Write Content 
 } // end class
