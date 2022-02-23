@@ -38,6 +38,7 @@ public class WebWorker implements Runnable
 {
 	private Socket socket;
 	public boolean valid = false; //Public variable representing whether requested file was found. 
+	public boolean fileAccess = false; 
 	public String secure = ""; //Public string containing the file path requested. 
 
 	/**
@@ -103,6 +104,7 @@ public class WebWorker implements Runnable
 				
 				//Check to see if server request contains file request: 
 				if( line.contains( "GET" ) && line.contains( ".html" ) ){ 
+					fileAccess = true; 
 					fileRequest = line; 
 					splitRequest = fileRequest.split( "\\s+" ); //Seperate GET request at spaces
 					secure = splitRequest[1]; //index 1 includes file path (index 0 = GET, index 2 = HTTP/1.1)
@@ -112,6 +114,8 @@ public class WebWorker implements Runnable
 					File file = new File( secure ); 
 						valid = file.exists(); //Make sure that file can be opened
 				} //end if
+				else
+					valid = true; 
 
 				if (line.length() == 0)
 					break;
@@ -171,7 +175,7 @@ public class WebWorker implements Runnable
 	//This method sends the html file as well as identify html tags and change them: 
 	private void writeContent(OutputStream os) throws Exception
 	{ 
-		if( valid == true ){ //If file was found 
+		if( valid == true && fileAccess == true ){ //If file was found 
 			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
 			Date today = new Date(); 
 
@@ -189,6 +193,13 @@ public class WebWorker implements Runnable
 				os.write("</body></html>\n".getBytes());
 			}//end while
 		}//end if
+		else if( valid == true && fileAccess == false )
+		{ 
+			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
+			Date today = new Date();
+			os.write("This server works! But you did not request me to read a file :(".getBytes());
+
+		} //end elseif
 		else{ //File was not found - Print 404 on page rather than HTML file
 			os.write("<html><head></head><body>\n".getBytes());
 			os.write(("<h3> 404 Not Found \n</h3>\n").getBytes()); 
