@@ -1,16 +1,16 @@
-<project name="Simple Web Server" default="run">
+<project name="Simple Web Server" default="compile">
     <description> 
         Build file for Program 1 Web Server. 
     </description> 
 
     <property name ="src" location="src"/> 
 
-    <target name="compile"> 
+    <target name="compile" depends="clean"> 
         <mkdir dir="${build}"/>
         <javac srcdir="${src}" destdir="${build}"/> 
     </target> 
 
-    <target name="run" depends="compile"> 
+    <target name="run"> 
         <java classname="edu.nmsu.cs.webserver.WebServer" classpath="${build}"/> 
     </target> 
 

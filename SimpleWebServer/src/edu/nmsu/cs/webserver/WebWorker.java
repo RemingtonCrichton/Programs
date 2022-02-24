@@ -38,7 +38,7 @@ public class WebWorker implements Runnable
 {
 	private Socket socket;
 	public boolean valid = false; //Public variable representing whether requested file was found. 
-	public boolean fileAccess = false; 
+	public boolean fileAccess = false; //Public variable representing whether user requested file. 
 	public String secure = ""; //Public string containing the file path requested. 
 
 	/**
@@ -103,7 +103,7 @@ public class WebWorker implements Runnable
 				System.err.println( "Request line: (" + line + ")" );
 				
 				//Check to see if server request contains file request: 
-				if( line.contains( "GET" ) && line.contains( ".html" ) ){ 
+				if( line.contains( "GET" ) && line.contains( ".html" ) ){ //User requested file
 					fileAccess = true; 
 					fileRequest = line; 
 					splitRequest = fileRequest.split( "\\s+" ); //Seperate GET request at spaces
@@ -114,8 +114,10 @@ public class WebWorker implements Runnable
 					File file = new File( secure ); 
 						valid = file.exists(); //Make sure that file can be opened
 				} //end if
-				else
+				else if( line.contains( "GET" ) ){ //User requested webpage but no file. 
+					fileAccess = false; 
 					valid = true; 
+				} //end else if
 
 				if (line.length() == 0)
 					break;
@@ -145,11 +147,14 @@ public class WebWorker implements Runnable
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 		//Send correct error code: 
-		if( valid == true ){ 
+		if( valid == true && fileAccess == true ){ //User requested valid file. 
 			os.write("HTTP/1.1 200 OK\n".getBytes()); //File Exists
 		} //end if
+		else if( valid == true && fileAccess == false ){ //User requested webserver but no file. 
+			os.write("HTTP/1.1 200 OK\n".getBytes()); //No file requested. Default page will be written. 
+		} //end if
 		else
-			os.write( "HTTP/1.1 404 NOT FOUND\n".getBytes() ); //File does not Exist 
+			os.write( "HTTP/1.1 404 NOT FOUND\n".getBytes() ); //File requested does not Exist 
 
 		os.write( "Date: ".getBytes() );
 		os.write( (df.format(d)).getBytes() );
@@ -193,7 +198,7 @@ public class WebWorker implements Runnable
 				os.write("</body></html>\n".getBytes());
 			}//end while
 		}//end if
-		else if( valid == true && fileAccess == false )
+		else if( valid == true && fileAccess == false ) //No file requested. Write default page. 
 		{ 
 			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
 			Date today = new Date();
