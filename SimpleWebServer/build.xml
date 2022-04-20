@@ -1,20 +1,20 @@
-<project name="Simple Web Server" default="compile">
+<project name="Simple Web Server" default="run" basedir=".">
     <description> 
         Build file for Program 1 Web Server. 
     </description> 
 
-    <property name ="src" location="src"/> 
+    <property name = "src" location = "src"/> 
 
     <target name="compile" depends="clean"> 
         <mkdir dir="${build}"/>
         <javac srcdir="${src}" destdir="${build}"/> 
     </target> 
 
-    <target name="run"> 
-        <java classname="edu.nmsu.cs.webserver.WebServer" classpath="${build}"/> 
+    <target name="run" depends="compile"> 
+        <java failonerror="yes" classname="edu.nmsu.cs.webserver.WebServer" classpath="${build}" fork="true" dir="./www"/> 
     </target> 
 
-    <target name="clean"> 
+    <target name="clean">  
         <delete dir="${build}"/> 
     </target> 
 </project> 

@@ -23,13 +23,15 @@ package edu.nmsu.cs.webserver;
  * 
  **/
 
-import java.io.BufferedReader;
+import java.io.BufferedReader; 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -39,7 +41,10 @@ public class WebWorker implements Runnable
 	private Socket socket;
 	public boolean valid = false; //Public variable representing whether requested file was found. 
 	public boolean fileAccess = false; //Public variable representing whether user requested file. 
+	public boolean logoAccess = false; 
+	public boolean fileImage = false; 
 	public String secure = ""; //Public string containing the file path requested. 
+	public String contentType = ""; 
 
 	/**
 	 * Constructor: must have a valid open socket
@@ -65,7 +70,7 @@ public class WebWorker implements Runnable
 			OutputStream os = socket.getOutputStream(); //Sending back to the browser
 
 			readHTTPRequest( is ); 
-			writeHTTPHeader( os, "text/html" );
+			writeHTTPHeader( os, contentType );
 			writeContent( os );
 
 			os.flush();
@@ -103,8 +108,11 @@ public class WebWorker implements Runnable
 				System.err.println( "Request line: (" + line + ")" );
 				
 				//Check to see if server request contains file request: 
-				if( line.contains( "GET" ) && line.contains( ".html" ) ){ //User requested file
+				if( line.contains( "GET" ) &&  line.contains( ".html" ) ){ //User requested file
 					fileAccess = true; 
+					fileImage = false; 
+					contentType = "text/html"; 
+
 					fileRequest = line; 
 					splitRequest = fileRequest.split( "\\s+" ); //Seperate GET request at spaces
 					secure = splitRequest[1]; //index 1 includes file path (index 0 = GET, index 2 = HTTP/1.1)
@@ -114,6 +122,34 @@ public class WebWorker implements Runnable
 					File file = new File( secure ); 
 						valid = file.exists(); //Make sure that file can be opened
 				} //end if
+				else if( line.contains( "GET" ) && ( line.contains( ".gif" ) || line.contains( ".jpeg" ) || line.contains( ".png" ) ) ){ //User requested image
+					fileAccess = true; 
+					fileImage = true; 
+
+					if( line.contains( ".gif") ){
+						contentType = "image/gif";
+					}  
+					else if( line.contains( ".jpeg" ) ){ 
+						contentType = "image/jpeg"; 
+					} 
+					else if( line.contains( ".png" ) ){ 
+						contentType = "image/png";
+					} 
+
+					fileRequest = line; 
+					splitRequest = fileRequest.split( "\\s+" ); //Seperate GET request at spaces
+					secure = splitRequest[1]; //index 1 includes file path (index 0 = GET, index 2 = HTTP/1.1)
+
+					secure = secure.substring( 1 ); //Remove initial forward slash and store address in public variable
+
+					File file = new File( secure ); 
+						valid = file.exists(); //Make sure that file can be opened
+				} //end else if
+				else if( line.contains( "GET" ) && line.contains( ".ico" ) ){ //Handle logo request
+					contentType = "image/png"; 
+					valid = true; 
+					logoAccess = true; 
+				} //end else if
 				else if( line.contains( "GET" ) ){ //User requested webpage but no file. 
 					fileAccess = false; 
 					valid = true; 
@@ -153,9 +189,9 @@ public class WebWorker implements Runnable
 		else if( valid == true && fileAccess == false ){ //User requested webserver but no file. 
 			os.write("HTTP/1.1 200 OK\n".getBytes()); //No file requested. Default page will be written. 
 		} //end if
-		else
-			os.write( "HTTP/1.1 404 NOT FOUND\n".getBytes() ); //File requested does not Exist 
-
+		else{
+			os.write( "HTTP/1.1 404 NOT FOUND\n".getBytes() ); //File requested does not Exist
+		}
 		os.write( "Date: ".getBytes() );
 		os.write( (df.format(d)).getBytes() );
 		os.write( "\n".getBytes() );
@@ -164,7 +200,17 @@ public class WebWorker implements Runnable
 		// os.write("Content-Length: 438\n".getBytes());
 		os.write( "Connection: close\n".getBytes() );
 		os.write( "Content-Type: ".getBytes() );
-		os.write( contentType.getBytes() ); //For program 2
+
+		if( ( contentType == "text/html" ) || ( valid == true && ( contentType == "image/jpeg" || 
+			contentType == "image/png" || contentType == "image/gif" ) ) ){ 
+
+			os.write( contentType.getBytes() ); //For program 2
+		} //end if
+		else{ //Image was not found and we need to print html - 404 not found
+			contentType = "text/html"; 
+			os.write( contentType.getBytes() ); //For program 2
+		} //end else
+
 		os.write( "\n\n".getBytes() ); // HTTP header ends with 2 newlines
 		return;
 	} //End Write Header
@@ -180,31 +226,45 @@ public class WebWorker implements Runnable
 	//This method sends the html file as well as identify html tags and change them: 
 	private void writeContent(OutputStream os) throws Exception
 	{ 
-		if( valid == true && fileAccess == true ){ //If file was found 
+		if( valid == true && fileAccess == true && fileImage == false ){ //If text file was found 
 			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
-			Date today = new Date(); 
+			String image = "<img src='ghost.png'>"; 
+
+			Date today = new Date();
 
 			BufferedReader fileRead = new BufferedReader( new FileReader( secure ) ); 
 			String fileHold = ""; 
 
 			while( ( fileHold = fileRead.readLine() ) != null ){ 
-				if( fileHold.contains( "<cs371server>" ) ) ; 
+				if( fileHold.contains( "<cs371server>" ) )  
 					fileHold = fileHold.replace( "<cs371server>", serverName ); 
-				if( fileHold.contains( "<cs371date>" ) ); 
+				else if( fileHold.contains( "<cs371date>" ) ) 
 					fileHold = fileHold.replace( "<cs371date>", today.toString() );
-					
+				else if(fileHold.contains( "<image>" ) ) 
+					fileHold = fileHold.replace( "<image>", image); 
+
 				os.write("<html><head></head><body>\n".getBytes());
 				os.write(("<h3>"+ fileHold +"\n</h3>\n").getBytes()); //Print HTML on page. 
 				os.write("</body></html>\n".getBytes());
 			}//end while
 		}//end if
-		else if( valid == true && fileAccess == false ) //No file requested. Write default page. 
-		{ 
-			String serverName = "The wonderfull... The Great... The FANTASTIC!... Remington's Serverrrr!!"; 
-			Date today = new Date();
-			os.write("This server works! But you did not request me to read a file :(".getBytes());
+		else if( valid == true && fileAccess == true && fileImage == true ){ //If image file was found  
+			if( logoAccess == true ){ 
+				secure = "favicon.png"; //write logo image
+			} //end if
+			
+			File picture = new File( secure ); 
 
-		} //end elseif
+			try{ 
+				os.write( Files.readAllBytes( picture.toPath() ) ); 
+			}catch( IOException e ){ 
+				e.printStackTrace();
+			} //end catch
+		}//end else if
+		else if( valid == true && fileAccess == false && fileImage == false ) //No file requested. Write default page. 
+		{ 
+			os.write("This server works! But you did not request me to read a file :(".getBytes());
+		} //end else if
 		else{ //File was not found - Print 404 on page rather than HTML file
 			os.write("<html><head></head><body>\n".getBytes());
 			os.write(("<h3> 404 Not Found \n</h3>\n").getBytes()); 
