@@ -12,6 +12,8 @@ package edu.nmsu.cs.scoring;
  * 
  ***/
 
+//Edited by Remington Crichton - CS 371 - 4/21/22
+
 public class RacingScore1
 {
 
@@ -42,8 +44,10 @@ public class RacingScore1
 			s = score2;
 		else
 			s = score1;
+
 		if (s > score3)
 			s = score3;
+
 		s = (score1 + score2 + score3) - s;
 		return s;
 	}

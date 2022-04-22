@@ -11,6 +11,8 @@ package edu.nmsu.cs.scoring;
  * @author Jon Cook, Ph.D.
  ***/
 
+ //Edited by Remington Crichton - CS 371 - 4/21/22
+
 public class RacingScore2
 {
 
@@ -45,17 +47,17 @@ public class RacingScore2
 		else if (score2 < score1 && score2 < score3)
 		{
 			s1 = score1;
-			s2 = score2;
+			s2 = score2; 
 		}
-		else if (score3 < score1 && score3 < score2)
+		else if (score3 < score1 && score3 < score2) 
 		{
 			s1 = score1;
 			s2 = score2;
 		}
 		else
 		{
-			s1 = 99;
-			s2 = 99;
+			s1 = score2; //Corrected. Wsa s1 = 99, s2 = 99
+			s2 = score3;
 		}
 		s = s1 + s2;
 		return s;
@@ -64,7 +66,7 @@ public class RacingScore2
 	public static void main(String args[])
 	{
 		int s1, s2, s3;
-		if (args == null || args.length != 3)
+		if (args.length != 3) //Unnecessary to have args = null
 		{
 			System.err.println("Error: must supply three arguments!");
 			return;

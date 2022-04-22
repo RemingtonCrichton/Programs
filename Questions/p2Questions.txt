@@ -1,1 +1,11 @@
-p2Questions.txt
+Program 2 Questions | Remington Crichton | 4/20/2022
+
+1) I estimate that it will take me 8.25 hours
+
+2) Thought/Design = 3.25 hours
+   Programming = 1 hour
+   Debugging = 15 hours
+   
+   Total = 16 hours (Got stuck on www folder for 2 months)
+
+3) Estimate Accuracy = 57.14%
