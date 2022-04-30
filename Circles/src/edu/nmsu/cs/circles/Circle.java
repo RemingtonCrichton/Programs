@@ -3,6 +3,8 @@ package edu.nmsu.cs.circles;
 /**
  * Implements a base abstract class for a circle. Everything except a intersects() method is
  * implemented here. Subclass must implement the intersects() method.
+ * 
+ * Editied by Remington Crichton - April 29, 2022
  **/
 public abstract class Circle
 {
@@ -37,7 +39,7 @@ public abstract class Circle
 	 **/
 	public double scale(double factor)
 	{
-		radius = radius * factor;
+		radius = radius * factor; //Corrected. Changed + to *. 
 		return radius;
 	}
 

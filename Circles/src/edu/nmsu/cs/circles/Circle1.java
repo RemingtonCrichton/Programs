@@ -1,3 +1,5 @@
+//Editied by Remington Crichton - April 29, 2022
+
 package edu.nmsu.cs.circles;
 
 public class Circle1 extends Circle
@@ -11,7 +13,7 @@ public class Circle1 extends Circle
 	public boolean intersects(Circle other)
 	{
 		if (Math.abs(center.x - other.center.x) < ( radius + other.radius ) &&
-				Math.abs(center.y - other.center.y) < ( radius + other.radius ) )
+				Math.abs(center.y - other.center.y) < ( radius + other.radius ) ) //Corrected. Added other.radius.
 			return true;
 		return false;
 	}

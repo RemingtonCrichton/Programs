@@ -7,6 +7,8 @@ package edu.nmsu.cs.circles;
  * org.junit.runner.JUnitCore Circle1Test - note that the commented out main is another way to run
  * tests - note that normally you would not have print statements in a JUnit testing class; they are
  * here just so you see what is happening. You should not have them in your test cases.
+ * 
+ * Editied by Remington Crichton - April 29, 2022
  ***/
 
 import org.junit.*;
@@ -52,7 +54,7 @@ public class Circle1Test
 		Assert.assertFalse( primaryCircle.intersects( secondaryCircle ) ); 
 		Assert.assertFalse( secondaryCircle.intersects( primaryCircle ) ); 
 
-		//Really Close: 
+		//Really Close on y axis: 
 		primaryCircle = new Circle1( 0, 15.00001, 5 ); 
 		secondaryCircle = new Circle1( 0, 0, 10 ); 
 		Assert.assertFalse( primaryCircle.intersects( secondaryCircle ) ); 
@@ -164,5 +166,4 @@ public class Circle1Test
 	 * java.lang.Class.forName("Circle1Test")); } catch (Exception e) { System.out.println("Exception:
 	 * " + e); } }
 	 ***/
-
 }
