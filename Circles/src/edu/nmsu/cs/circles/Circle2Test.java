@@ -135,6 +135,30 @@ public class Circle2Test
 		Assert.assertTrue(p.x == 0 && p.y == 1);
 	} //end test
 
+	/**
+	*********************************
+	***** TESTING CIRCLE2 SCALE *****
+	*********************************
+	*/
+
+	//Test positive factor
+	@Test
+	public void positiveFactor(){ 
+		double r; 
+		System.out.println( "Running test positiveFactor" ); 
+		r = circle2.scale( 4 ); 
+		Assert.assertTrue(r == 12);
+	} //end test
+
+	//Test negative factor
+	@Test
+	public void negativeFactor(){ 
+		double r; 
+		System.out.println( "Running test negativeFactor" ); 
+		r = circle2.scale( .5 ); 
+		Assert.assertTrue(r == 1.5);
+	} //end test
+
 	/***
 	 * NOT USED public static void main(String args[]) { try { org.junit.runner.JUnitCore.runClasses(
 	 * java.lang.Class.forName("Circle1Test")); } catch (Exception e) { System.out.println("Exception:

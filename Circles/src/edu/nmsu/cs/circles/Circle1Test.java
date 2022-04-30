@@ -109,21 +109,23 @@ public class Circle1Test
 		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
 	} //end test
 
-	//
+	/**
+	**************************************
+	***** TESTING CIRCLE1 SIMPLEMOVE *****
+	**************************************
+	*/
+
 	// Test a simple positive move
-	//
 	@Test
 	public void simpleMove()
 	{
 		Point p;
-		System.out.println("Running test simpleMove.");
+		System.out.println("Running test simpleMovePos.");
 		p = circle1.moveBy(1, 1);
 		Assert.assertTrue(p.x == 2 && p.y == 3);
-	}
+	} //end test
 
-	//
 	// Test a simple negative move
-	//
 	@Test
 	public void simpleMoveNeg()
 	{
@@ -131,7 +133,31 @@ public class Circle1Test
 		System.out.println("Running test simpleMoveNeg.");
 		p = circle1.moveBy(-1, -1);
 		Assert.assertTrue(p.x == 0 && p.y == 1);
-	}
+	} //end test
+
+	/**
+	*********************************
+	***** TESTING CIRCLE1 SCALE *****
+	*********************************
+	*/
+
+	//Test positive factor
+	@Test
+	public void positiveFactor(){ 
+		double r; 
+		System.out.println( "Running test positiveFactor" ); 
+		r = circle1.scale( 4 ); 
+		Assert.assertTrue(r == 12);
+	} //end test
+
+	//Test negative factor
+	@Test
+	public void negativeFactor(){ 
+		double r; 
+		System.out.println( "Running test negativeFactor" ); 
+		r = circle1.scale( .5 ); 
+		Assert.assertTrue(r == 1.5);
+	} //end test
 
 	/***
 	 * NOT USED public static void main(String args[]) { try { org.junit.runner.JUnitCore.runClasses(
