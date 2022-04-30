@@ -35,6 +35,80 @@ public class Circle1Test
 		System.out.println("\nTest finished.");
 	}
 
+	/**
+	****************************** 
+	* TESTING CIRCLE1 INTERSECTION
+	******************************
+	*/
+
+	//Circles do not intersect
+	@Test
+	public void Intersect_false(){ 
+		System.out.println( "Running Test: Intersect_false" ); 
+
+		//Far away: 
+		Circle1 primaryCircle = new Circle1( 0, 100, 5 ); 
+		Circle1 secondaryCircle = new Circle1( 0, 0, 2 ); 
+		Assert.assertFalse( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertFalse( secondaryCircle.intersects( primaryCircle ) ); 
+
+		//Really Close: 
+		primaryCircle = new Circle1( 0, 15.00001, 5 ); 
+		secondaryCircle = new Circle1( 0, 0, 10 ); 
+		Assert.assertFalse( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertFalse( secondaryCircle.intersects( primaryCircle ) ); 
+
+		//Really Close - Diagonal: 
+		primaryCircle = new Circle1( 0, 0, 1 ); 
+		secondaryCircle = new Circle1( 2, 1, 1 ); 
+		Assert.assertFalse( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertFalse( secondaryCircle.intersects( primaryCircle ) ); 
+	} //end test
+
+	//Circles intersect - Secondary circle shifted along x axis. 
+	@Test
+	public void Intersect_true_xshift(){ 
+		System.out.println( "Intersect_true_xshift" ); 
+
+		Circle1 primaryCircle = new Circle1( 0, 0, 3 ); 
+		Circle1 secondaryCircle = new Circle1( 5, 0, 4 ); 
+		Assert.assertTrue( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
+	} //end test
+
+	//Circles intersect - Secondary circle shifted along y axis. 
+	@Test
+	public void Intersect_true_yshift(){ 
+		System.out.println( "Intersect_true_yshift" ); 
+
+		Circle1 primaryCircle = new Circle1( 0, 0, 3 ); 
+		Circle1 secondaryCircle = new Circle1( 0, 5, 4 ); 
+		Assert.assertTrue( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
+	}
+
+	//Circles intersect - Secondary circle shifted both in x and y axis.
+	@Test
+	public void Intersect_true_diagnoalshift(){ 
+		System.out.println( "Intersect_true_diagnoalshift" ); 
+
+		Circle1 primaryCircle = new Circle1( 0, 0, 3 ); 
+		Circle1 secondaryCircle = new Circle1( 4, 3, 3 ); 
+		Assert.assertTrue( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
+	}
+
+	//Circles intersect - Circles overlap perfectly (Same size and location)
+	@Test
+	public void Intersect_true_samesize_samelocation(){ 
+		System.out.println( "Running Test: Intersect_true_samesize_samelocation" ); 
+
+		Circle1 primaryCircle = new Circle1( 0, 0, 5 ); 
+		Circle1 secondaryCircle = new Circle1( 0, 0, 5 ); 
+		Assert.assertTrue( primaryCircle.intersects( secondaryCircle ) ); 
+		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
+	} //end test
+
 	//
 	// Test a simple positive move
 	//
