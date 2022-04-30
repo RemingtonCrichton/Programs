@@ -109,22 +109,23 @@ public class Circle2Test
 		Assert.assertTrue( secondaryCircle.intersects( primaryCircle ) ); 
 	} //end test
 
-	/*
-	//
+	/**
+	**************************************
+	***** TESTING CIRCLE2 SIMPLEMOVE *****
+	**************************************
+	*/
+
 	// Test a simple positive move
-	//
 	@Test
 	public void simpleMove()
 	{
 		Point p;
-		System.out.println("Running test simpleMove.");
+		System.out.println("Running test simpleMovePos.");
 		p = circle2.moveBy(1, 1);
 		Assert.assertTrue(p.x == 2 && p.y == 3);
-	}
+	} //end test
 
-	//
 	// Test a simple negative move
-	//
 	@Test
 	public void simpleMoveNeg()
 	{
@@ -132,8 +133,7 @@ public class Circle2Test
 		System.out.println("Running test simpleMoveNeg.");
 		p = circle2.moveBy(-1, -1);
 		Assert.assertTrue(p.x == 0 && p.y == 1);
-	}
-	*/
+	} //end test
 
 	/***
 	 * NOT USED public static void main(String args[]) { try { org.junit.runner.JUnitCore.runClasses(
